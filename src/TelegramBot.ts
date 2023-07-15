@@ -1,14 +1,22 @@
-import { Context, Telegraf } from "telegraf";
-import { Parser } from "./Parser";
-import { puppeteer_config, url } from './config.json'
+import { Context, Telegraf } from 'telegraf';
+import { BrowserLaunchArgumentOptions } from 'puppeteer';
+
+import { Parser } from './Parser';
+import puppeteerConfig from '../puppeteer-config.json';
+
+const TARGET_URL = 'https://habr.com/ru/top/daily/';
 
 export class TelegramBot {
     private bot: Telegraf<Context>;
     private parse: Parser;
 
-    constructor(private botToken: string) {
-        this.parse = new Parser(url, puppeteer_config);
-        this.bot = new Telegraf(botToken);
+    constructor(token?: string) {
+        if (!token) {
+            throw new Error('Telegram bot token not found');
+        }
+        
+        this.parse = new Parser(TARGET_URL, <BrowserLaunchArgumentOptions>puppeteerConfig);
+        this.bot = new Telegraf(token);
         this.registerCommands();
         this.startPolling();
     }
