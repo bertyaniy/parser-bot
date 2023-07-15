@@ -1,6 +1,6 @@
 node_modules/
 dist/
-user-data/
+puppeteer-data/
 src/config.json
 
 .env

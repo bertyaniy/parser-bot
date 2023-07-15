@@ -1,8 +1,11 @@
-import { TelegramBot } from './src/TelegramBot';
 import 'dotenv/config';
+import { TelegramBot } from './src/TelegramBot';
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 
-(function bootstrap() {
+const bootstrap = async () => {
     const bot = new TelegramBot(TELEGRAM_TOKEN);
-})();
+    bot.start();
+}
+
+bootstrap().catch(console.error);
