@@ -1,32 +1,35 @@
-import { Context, Telegraf } from "telegraf";
-import { Parser } from "./Parser";
-import { puppeteer_config, url } from './config.json'
+import { Context, Telegraf } from 'telegraf';
+import { HabrParser, TARGET_URL } from './HabrParser';
 
 export class TelegramBot {
     private bot: Telegraf<Context>;
-    private parse: Parser;
 
-    constructor(private botToken: string) {
-        this.parse = new Parser(url, puppeteer_config);
-        this.bot = new Telegraf(botToken);
-        this.registerCommands();
-        this.startPolling();
+    constructor(token?: string) {
+        if (!token) {
+            throw new Error('Telegram bot token not found');
+        }
+        
+        this.bot = new Telegraf(token);
     }
 
-    private registerCommands() {
-        this.bot.start((ctx) => ctx.reply("Welcome to the parse/post bot. Type /parse to start bot work."));
-        this.bot.command('parse', async (ctx) => {
-            const result = this.parser();
-            const resolvedContent = await result;
-            ctx.reply(`${resolvedContent.name}\n\nhttps://habr.com${resolvedContent.href}`);
-        });
-    }
-
-    private startPolling() {
+    public start(): void {
         this.bot.launch();
-    }
 
-    private parser() {
-        return this.parse.init();
+        this.bot.start((ctx) => {
+            ctx.reply(
+                'Welcome to the parse / post bot. ' +
+                'Type /parse to start bot work'
+            );
+        });
+        
+        this.bot.command('parse', async (ctx) => {
+            const { name, href } = await HabrParser.parse();
+
+            ctx.reply(
+                name +
+                '\n\n' +
+                `${TARGET_URL.hostname}${href}`
+            );
+        });
     }
 }
